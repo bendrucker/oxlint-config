@@ -1,0 +1,24 @@
+name: ci
+
+on:
+  pull_request: {}
+  push:
+    branches: [main]
+
+jobs:
+  presets:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        # The peer range floor and the pinned latest. A rule name the older
+        # release lacks fails config parsing there.
+        oxlint: ["1.78.0", "pinned"]
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 24
+      - run: npm ci
+      - if: matrix.oxlint != 'pinned'
+        run: npm install --no-save oxlint@${{ matrix.oxlint }}
+      - run: npm test

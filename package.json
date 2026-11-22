@@ -1,0 +1,24 @@
+{
+  "name": "@bendrucker/oxlint-config",
+  "version": "0.1.0",
+  "description": "Shared Oxlint presets",
+  "license": "MIT",
+  "repository": "github:bendrucker/oxlint-config",
+  "files": ["base.json", "typescript.json", "bun.json"],
+  "exports": {
+    "./base.json": "./base.json",
+    "./typescript.json": "./typescript.json",
+    "./bun.json": "./bun.json",
+    "./package.json": "./package.json"
+  },
+  "scripts": {
+    "test": "oxlint -c test/.oxlintrc.json --deny-warnings --type-aware test"
+  },
+  "peerDependencies": {
+    "oxlint": ">=1.78.0"
+  },
+  "devDependencies": {
+    "oxlint": "1.94.0",
+    "oxlint-tsgolint": "7.0.2008"
+  }
+}

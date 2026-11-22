@@ -1,0 +1,48 @@
+name: release
+
+on:
+  # Preset changes only, so a devDependency or CI bump does not open a
+  # Renovate PR in every consumer. Dispatch to release anything else.
+  push:
+    branches: [main]
+    paths:
+      - base.json
+      - typescript.json
+      - bun.json
+  workflow_dispatch: {}
+
+concurrency:
+  group: release
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+  id-token: write
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 24
+          registry-url: https://registry.npmjs.org
+      - run: npm ci
+      - run: npm test
+      # package.json holds major.minor. The patch is the commit count, so
+      # every release is unique and ordered without a version-bump commit.
+      - id: version
+        run: |
+          base=$(node -p 'require("./package.json").version.split(".").slice(0, 2).join(".")')
+          echo "version=$base.$(git rev-list --count HEAD)" >> "$GITHUB_OUTPUT"
+      - run: npm version "${{ steps.version.outputs.version }}" --no-git-tag-version
+      # Trusted publishing: npm exchanges the workflow's OIDC token, so no
+      # token secret exists, and provenance is attached automatically.
+      - run: npm publish --access public
+      - env:
+          GH_TOKEN: ${{ github.token }}
+          VERSION: v${{ steps.version.outputs.version }}
+        run: gh release create "$VERSION" --target "$GITHUB_SHA" --generate-notes
