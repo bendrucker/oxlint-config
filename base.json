@@ -43,6 +43,9 @@
     // Conflicts with oxc/no-map-spread when the array is built inside a map
     // callback.
     "unicorn/no-immediate-mutation": "off",
+    // Its fix mutates the mapped elements in place, and for an array element
+    // the alternative is `concat`, which unicorn/prefer-spread rejects.
+    "oxc/no-map-spread": "off",
     // One push per emitted line keeps output-building code diffable.
     "unicorn/prefer-single-call": "off",
     // A table-driven test branches on the case it is running.
